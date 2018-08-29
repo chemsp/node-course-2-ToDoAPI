@@ -19,6 +19,16 @@ app.post('/toDos',(req , res)=>{
         res.status(400).send(err);
     });
 });
+
+app.get('/toDOs',(req, res)=>{
+  Todo_1.find().then((todos)=>{
+    res.send({todos});
+  },
+  (e)=>{
+    res.statusCode(400).send(e);
+  }
+)
+})
 app.listen('3000',()=>{
     console.log('app startes on port 3000');
 })
