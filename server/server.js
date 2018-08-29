@@ -8,7 +8,7 @@ var { Users} = require('./models.js/users');
 const {ObjectID} = require('mongodb')
 
 var app = express();
-
+  var port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.post('/toDos',(req , res)=>{
    var e = req;
@@ -42,7 +42,7 @@ app.get('/toDos/:id',(req, res)=>{
 
     Todo_1.findById(id).then((todo)=>{
     
-        res.send({todo});
+        res.send(todo);
        },(e)=>{
            res.status(400).send(e);
        });
@@ -50,8 +50,8 @@ app.get('/toDos/:id',(req, res)=>{
 }
   
 });
-app.listen('3000',()=>{
-    console.log('app startes on port 3000');
+app.listen(port,()=>{
+    console.log(`app started on port ${port}`);
 })
  module.exports ={app};
 // var newTodo = new Todo_1({

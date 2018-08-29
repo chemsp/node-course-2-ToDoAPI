@@ -2,15 +2,21 @@ const expect = require('expect');
 const request = require('supertest');
 
 const {app} = require('./../server');
-const { Todo_1} = require('../models.js/toDos');
+const { Todo_1 } = require('../models.js/toDos');
+
+const { ObjectID} = require('mongodb')
+
 
 const toDos = [{
+    _id : new ObjectID(),
     text:"To do Somthing test 1"
 },
 {
+    _id : new ObjectID(),
     text:"To do Somthing test 2"
 },
 {
+    _id : new ObjectID(),
     text:"To do Somthing test 3"
 }]
 
@@ -83,4 +89,33 @@ describe('GET /Todos',()=>{
          
         })
     });
+});
+
+describe('Get /toDo:id',()=>{
+    it('should return toDo doc',(done)=>{
+
+        request(app)
+        .get(`/toDos/${toDos[0]._id.toHexString()}`)
+        .expect(200)
+        .expect((res)=>{
+          expect(res.body.text).toBe(toDos[0].text)
+        })
+        .end(done);
+    });
+
+    it('should return 404 for item not found',(done)=>{
+      _idy  = new ObjectID();
+      request(app)
+      .get(`/toDos/${_idy.toHexString()}`)
+      .expect(200)
+      .end(done);
+    });
+
+    it('should return 404 for Invalid Id',(done)=>{
+       
+        request(app)
+        .get('/toDos/123')
+        .expect(404)
+        .end(done);
+      });
 });
