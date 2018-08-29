@@ -12,7 +12,7 @@ if(err){
 }
 console.log(' connected to MongoDB server');
 
-const db = client.db('todoApp');
+const db = client.db('todoapp');
 // db.collection('Todos').insertOne({
 //     text: "To do Somthing",
 //     completed: false
