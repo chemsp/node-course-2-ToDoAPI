@@ -98,7 +98,7 @@ describe('Get /toDo:id',()=>{
         .get(`/toDos/${toDos[0]._id.toHexString()}`)
         .expect(200)
         .expect((res)=>{
-          expect(res.body.text).toBe(toDos[0].text)
+          expect(res.body.todo.text).toBe(toDos[0].text)
         })
         .end(done);
     });
@@ -107,7 +107,7 @@ describe('Get /toDo:id',()=>{
       _idy  = new ObjectID();
       request(app)
       .get(`/toDos/${_idy.toHexString()}`)
-      .expect(200)
+      .expect(404)
       .end(done);
     });
 
@@ -118,4 +118,46 @@ describe('Get /toDo:id',()=>{
         .expect(404)
         .end(done);
       });
+});
+
+
+describe('Delete Todo',()=>{
+
+    it('should delete toDo',(done)=>{
+     
+        request(app)
+        .delete(`/toDos/${toDos[0]._id.toHexString()}`)
+        .expect(200)
+        .expect((res)=>{
+           expect(res.body.itemdeleted._id).toBe(toDos[0]._id.toHexString());
+         //   done()
+        })
+        .end((err)=>{
+            if(err){
+                return done(err);            
+            }
+            Todo_1.findById(toDos[0]._id.toHexString()).then((todo)=>{
+                expect(todo).toBeNull
+                done();
+            }).catch((e)=>{
+                return done(e);
+            })
+        })
+    });
+
+    it('should return 404 for item not found',(done)=>{
+        _idy  = new ObjectID();
+        request(app)
+        .delete(`/toDos/${_idy.toHexString()}`)
+        .expect(404)
+        .end(done);
+      });
+  
+      it('should return 404 for Invalid Id',(done)=>{
+         
+          request(app)
+          .delete('/toDos/123')
+          .expect(404)
+          .end(done);
+        });
 });

@@ -22,7 +22,7 @@ app.post('/toDos',(req , res)=>{
     });
 });
 
-app.get('/toDOs',(req, res)=>{
+app.get('/toDos',(req, res)=>{
   Todo_1.find().then((todos)=>{
     res.send({todos});
   },
@@ -35,24 +35,46 @@ app.get('/toDOs',(req, res)=>{
 
 app.get('/toDos/:id',(req, res)=>{
    var id = req.params.id;
-
+  
    if(!ObjectID.isValid(id)){
     res.status(404).send("Invalid ID");
 } else{
 
     Todo_1.findById(id).then((todo)=>{
-    
-        res.send(todo);
-       },(e)=>{
-           res.status(400).send(e);
-       });
+        if(!todo){
+           return res.status(404).send();
+        }
+        res.send({todo});
+       }).catch((e)=>{
+        res.status(400).send(e);
+    });
 
 }
   
 });
+
+app.delete('/toDos/:id',(req,res)=>{
+   var id =  req.params.id ;
+   if(!ObjectID.isValid(id)){
+       res.status(404).send();
+   }
+  
+    Todo_1.findByIdAndRemove(id).then((todo)=>{
+         if(!todo){
+             return res.status(404).send()
+         }
+        res.send({
+            itemdeleted: todo
+        })
+    },(err)=>{
+        res.status(404).send(err);
+    }).catch((e)=>{
+        res.status(400).send(e);
+    })
+});
 app.listen(port,()=>{
     console.log(`app started on port ${port}`);
-})
+});
  module.exports ={app};
 // var newTodo = new Todo_1({
 //     text : "Cooked Dinner"
