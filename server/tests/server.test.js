@@ -13,7 +13,9 @@ const toDos = [{
 },
 {
     _id : new ObjectID(),
-    text:"To do Somthing test 2"
+    text:"To do Somthing test 2",
+    completed: true,
+    completedAt : 1234   
 },
 {
     _id : new ObjectID(),
@@ -64,6 +66,8 @@ describe('Post /toDos',()=>{
       }
       
       Todo_1.find().then((todo)=>{
+        //  console.log(todo);
+
         expect(todo.length).toBe(3);
         done();
     }).catch((e)=>done(e));
@@ -114,7 +118,7 @@ describe('Get /toDo:id',()=>{
     it('should return 404 for Invalid Id',(done)=>{
        
         request(app)
-        .get('/toDos/123')
+        .get('/toDos/e123')
         .expect(404)
         .end(done);
       });
@@ -137,12 +141,10 @@ describe('Delete Todo',()=>{
                 return done(err);            
             }
             Todo_1.findById(toDos[0]._id.toHexString()).then((todo)=>{
-                expect(todo).toBeNull
+                expect(todo).toBeNull();
                 done();
-            }).catch((e)=>{
-                return done(e);
-            })
-        })
+            }).catch((e)=>done(e));
+        });
     });
 
     it('should return 404 for item not found',(done)=>{
@@ -150,14 +152,70 @@ describe('Delete Todo',()=>{
         request(app)
         .delete(`/toDos/${_idy.toHexString()}`)
         .expect(404)
-        .end(done);
+        .end((err)=>{
+            if(err){
+                return done(err);            
+            }
+            done();
+        });
       });
   
       it('should return 404 for Invalid Id',(done)=>{
-         
-          request(app)
-          .delete('/toDos/123')
-          .expect(404)
-          .end(done);
+         var hexID = new ObjectID();
+        request(app)
+        .delete(`/toDos/${hexID.toHexString()}`)
+        .expect(404)
+        .end((err)=>{
+            if(err){
+                return done(err);            
+            }
+            done();
         });
+      });
+ });
+
+
+describe('Patch Todo',()=>{
+
+    it('should Patch toDo',(done)=>{
+        var hexID = toDos[0]._id.toHexString();
+         var  text = "New test texts";
+       
+        request(app)
+        .patch(`/toDos/${hexID}`)
+        .send({
+            text,
+            completed:true
+                  
+        })
+        .expect(200)
+        .expect((res)=>{
+          console.log(res.body);
+           expect(res.body.todo.completed).toBe(true);
+           expect(res.body.todo.text).toBe(text);
+          expect( typeof res.body.todo.completedAt).toBe('number');
+          // console.log(res.body.toDos);
+        })
+        .end(done);
+    });
+
+    it('should clear completedAt when to do is not completed',(done)=>{
+        var  text = "New test text";
+        request(app)
+        .patch(`/toDos/${toDos[1]._id.toHexString()}`)
+        .send({
+           completed : false,
+           text
+        })
+        .expect(200)
+        .expect((res)=>{
+            expect(res.body.todo.completed).toBe(false);
+            expect(res.body.todo.text).toBe(text);
+           expect(res.body.todo.completedAt).toBeNull();
+           
+        })
+        .end( done())
+      });
+  
+     
 });
