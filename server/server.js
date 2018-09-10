@@ -6,13 +6,18 @@ const _ = require('lodash');
 const {mongoose} = require('./db/mongoose');
 const {Todo_1} = require('./models.js/toDos');
 const { Users} = require('./models.js/users');
-
+ const { authenticate} = require('./middleware/authenticate');
 
 const {ObjectID} = require('mongodb')
 
 var app = express();
   var port = process.env.PORT;
 app.use(bodyParser.json());
+
+app.get('/user/me',authenticate,(req,res)=>{
+   res.send(req.user);
+   //console.log(req);
+});
 app.post('/toDos',(req , res)=>{
    var e = req;
     var newTodo = new Todo_1({
@@ -102,11 +107,14 @@ app.patch('/toDos/:id',(req,res)=>{
 app.post('/users',(req,res)=>{
     var body = _.pick(req.body,['email','password']);
     var user = new Users(body);
-    user
+    
     user.save().then((user)=>{
       // res.send(user);
+
+     console.log(user);
       return user.generateAuthToken();
     }).then((token)=>{
+
         res.header({'x-auth':token}).send(user);
     }).catch((e)=>{
         res.status(400).send(e);
