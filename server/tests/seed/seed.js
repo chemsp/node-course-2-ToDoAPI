@@ -5,6 +5,8 @@ const jwt   = require('jsonwebtoken');
 var userOneId = new ObjectID();
 
 var userTwoId = new ObjectID();
+
+var userThreeId = new ObjectID();
 const users = [
     {
         _id : userOneId,
@@ -18,22 +20,29 @@ const users = [
         _id : userTwoId,
         email: "margi@example.com",
         password: 'userTwoPass',
+        tokens : [ { 
+            access : 'auth',
+            token : jwt.sign({  _id : userTwoId, access:'auth'},'abc123').toString()
+           }  ]
         
     }
 ];
 const toDos = [{
     _id : new ObjectID(),
-    text:"To do Somthing test 1"
+    text:"To do Somthing test 1",
+    _creator : userOneId
 },
 {
     _id : new ObjectID(),
     text:"To do Somthing test 2",
     completed: true,
-    completedAt : 1234   
+    completedAt : 1234 ,
+    _creator:userTwoId  
 },
 {
     _id : new ObjectID(),
-    text:"To do Somthing test 3"
+    text:"To do Somthing test 3",
+    _creator: userThreeId
 }];
 
 
