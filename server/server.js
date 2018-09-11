@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 const _ = require('lodash');
 const {mongoose} = require('./db/mongoose');
 const {Todo_1} = require('./models.js/toDos');
-const { Users} = require('./models.js/users');
+var { Users} = require('./models.js/users');
  const { authenticate} = require('./middleware/authenticate');
 
 const {ObjectID} = require('mongodb')
@@ -119,6 +119,19 @@ app.post('/users',(req,res)=>{
     }).catch((e)=>{
         res.status(400).send(e);
     });
+});
+
+app.post('/users/login',(req,res)=>{
+    var body = _.pick(req.body,['email','password']);
+   Users.findByCreditential(body.email,body.password).then((user)=>{
+      // res.send(user);
+       return user.generateAuthToken().then((token)=>{
+        res.header({'x-auth':token}).send(user);
+       })
+   }).catch((e)=>{
+      res.status(400).send(e);
+   })
+  
 });
 app.listen(port,()=>{
     console.log(`app started on port ${port}`);
