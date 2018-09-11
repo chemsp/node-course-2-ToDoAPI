@@ -291,3 +291,64 @@ describe('POST /USers',()=>{
     .end(done)
  });
 });
+
+
+describe('POST /users/login',()=>{
+    
+    it('should login user and return  auth token ',(done)=>{
+      
+       request(app)
+       .post('/users/login')
+       .send({
+           email:users[1].email,
+           password: users[1].password
+        })
+       .expect(200)
+       .expect((req)=>{
+         expect( req.headers['x-auth']).toBeTruthy();
+       })
+       .end((err,req)=>{
+           if(err){
+               return done(err);
+           }
+          Users.findById({_id: users[1]._id}).then((user)=>{
+              expect(user.tokens[0]).toHaveProperty(   'access','auth');
+              expect(user.tokens[0]).toHaveProperty(   'token' , req.headers['x-auth']);
+              
+              done()
+          }).catch((e)=>done(e));
+       })
+    });
+   
+    it('should reject invalid login',(done)=>{
+        request(app)
+        .post('/users/login')
+        .send({
+            email:users[1].email ,
+            password: users[1].password + 1
+         })
+        .expect(400)
+        .expect((req)=>{
+          expect( req.headers['x-auth']).toBeFalsy();
+        })
+        .end((err,req)=>{
+            if(err){
+                return done(err);
+            }
+           Users.findById({_id: users[1]._id}).then((user)=>{
+               expect(user.tokens.length).toEqual(0);
+               
+               done()
+           }).catch((e)=>done(e));
+        })
+     });
+     
+    it('should give  error for  email already in use ',(done)=>{
+      
+       request(app)
+       .post('/users')
+       .send({email: users[0].email, password:1245677787})
+       .expect(400)
+       .end(done)
+    });
+   });
